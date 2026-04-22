@@ -56,3 +56,6 @@ test_output/
 # Dependencies
 conan.lock
 vcpkg_installed/
+
+
+venv/
