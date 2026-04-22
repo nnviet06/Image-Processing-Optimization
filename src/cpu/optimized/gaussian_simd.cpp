@@ -122,7 +122,6 @@ static void vertical_pass_simd(const cv::Mat& temp, cv::Mat& dst,
             for (int i = 0; i < 8; i++) {
                 int col = c + i;
                 if (col < cols) {
-                    float* res_ptr = (float*)_mm256_cvtps_epi32(result).m256i_i32;
                     dst.at<uchar>(r, col) = static_cast<uchar>(
                         std::round(((float*)&result)[i])
                     );
