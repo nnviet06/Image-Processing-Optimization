@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.10)
-project(ImageProcessingOptimization)
+project(ImageProcessingOptimization LANGUAGES CXX CUDA)
 
 set(CMAKE_CXX_STANDARD 17)
-
-# Use MSYS2 OpenCV
-set(OpenCV_DIR "C:/msys64/ucrt64/lib/cmake/opencv4")
+set(CMAKE_CUDA_STANDARD 17)
+set(CMAKE_CUDA_ARCHITECTURES 86)
 
 find_package(OpenCV REQUIRED)
 find_package(Threads REQUIRED)
+find_package(CUDAToolkit 13.0 REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -40,27 +40,23 @@ add_executable(gaussian_cache_aware src/cpu/optimized/gaussian_cache_aware.cpp)
 target_link_libraries(gaussian_cache_aware PRIVATE cpu_filters_lib ${OpenCV_LIBS})
 
 # ============= PHASE 2: GPU BATCH PROCESSING =============
- 
+
 # GPU shared utilities library
 add_library(gpu_filters_lib src/gpu/utils.cu)
-target_link_libraries(gpu_filters_lib PRIVATE ${OpenCV_LIBS} ${CUDA_LIBRARIES})
+target_link_libraries(gpu_filters_lib PRIVATE ${OpenCV_LIBS} CUDA::cudart)
 set_target_properties(gpu_filters_lib PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
- 
+
 # Phase 2.1: GPU Kernel (basic CUDA Gaussian)
 add_executable(gaussian_gpu_kernel src/gpu/kernels/gaussian_kernel.cu)
-target_link_libraries(gaussian_gpu_kernel PRIVATE gpu_filters_lib ${OpenCV_LIBS} ${CUDA_LIBRARIES})
+target_link_libraries(gaussian_gpu_kernel PRIVATE gpu_filters_lib ${OpenCV_LIBS} CUDA::cudart)
 set_target_properties(gaussian_gpu_kernel PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
- 
+
 # Phase 2.2: GPU Memory Optimization (pinned memory + streams)
 add_executable(gaussian_gpu_optimized src/gpu/memory/gaussian_gpu_optimized.cu)
-target_link_libraries(gaussian_gpu_optimized PRIVATE gpu_filters_lib ${OpenCV_LIBS} ${CUDA_LIBRARIES})
+target_link_libraries(gaussian_gpu_optimized PRIVATE gpu_filters_lib ${OpenCV_LIBS} CUDA::cudart)
 set_target_properties(gaussian_gpu_optimized PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
- 
+
 # Phase 2.3: GPU Batch Pipeline
 add_executable(gaussian_gpu_batch src/gpu/batch/gaussian_batch.cu)
-target_link_libraries(gaussian_gpu_batch PRIVATE gpu_filters_lib ${OpenCV_LIBS} ${CUDA_LIBRARIES})
+target_link_libraries(gaussian_gpu_batch PRIVATE gpu_filters_lib ${OpenCV_LIBS} CUDA::cudart)
 set_target_properties(gaussian_gpu_batch PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
- 
- 
-
-
