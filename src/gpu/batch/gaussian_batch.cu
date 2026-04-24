@@ -135,6 +135,12 @@ std::vector<cv::Mat> gaussian_gpu_batch(const std::vector<cv::Mat>& batch,
                     cudaMemcpyDeviceToHost, stream);
     cudaStreamSynchronize(stream);
 
+    size_t total_bytes = img_bytes * num_images;
+    std::cerr << "DEBUG: img_bytes=" << img_bytes 
+            << ", num_images=" << num_images 
+            << ", total_bytes=" << total_bytes 
+            << ", h_batch_dst=" << (void*)h_batch_dst << std::endl;
+
     // Create result vector
     std::vector<cv::Mat> results;
     for (int i = 0; i < num_images; i++) {
@@ -165,8 +171,8 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Image loaded: " << src.cols << "x" << src.rows << std::endl;
 
-    // Create batch of 100 copies (simulating 100 images)
-    std::vector<cv::Mat> batch(100, src);
+    // Create batch of 10 copies (simulating 10 images)
+    std::vector<cv::Mat> batch(10, src);
     std::cout << "Batch size: " << batch.size() << " images" << std::endl;
 
     // Warm up
