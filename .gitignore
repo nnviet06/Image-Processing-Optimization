@@ -58,4 +58,4 @@ conan.lock
 vcpkg_installed/
 
 
-venv/
+.venv/
