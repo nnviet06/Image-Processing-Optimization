@@ -40,14 +40,19 @@ Three GPU optimization layers with batch processing:
 
 **Key insight:** GPU dominates even single image (20ms vs 352ms CPU). Batch processing improves throughput but single-image latency already GPU-optimal due to PCIe amortization.
 
+
 ---
 
-## Phase 3: Smart Scheduler (In Progress)
+## Phase 3: Smart Scheduler (Complete)
 
-Intelligent CPU/GPU selection based on workload:
-- Single image? Use GPU (20ms beats 352ms CPU)
-- Batch of 10+? GPU batch pipeline (34 img/sec throughput)
-- Decision logic: Profile image size + batch size, choose optimal path
+Intelligent CPU/GPU selection based on workload profiling
+
+**Decision Logic:**
+- Profiles both CPU (multi-threaded) and GPU (CUDA kernel) paths
+- Measures execution time on real hardware
+- Chooses faster option automatically
+
+**Key Finding:** GPU dominates all tested workloads due to amortized PCIe overhead on compute-intensive operations. Even single images benefit from GPU acceleration.
 
 ---
 
@@ -87,6 +92,5 @@ ninja
 
 - **#4**: Threading slower than SIMD on smaller images (overhead > work)
 - **#5**: Cache-aware tiling slower than naive (tiling overhead destroying benefit)
-- Phase 3 scheduler not yet implemented
 
 ---
